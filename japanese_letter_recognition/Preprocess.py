@@ -2,6 +2,7 @@ import cv2
 import os
 import glob
 import numpy as np
+import csv
 
 import japanese_letter_recognition.FileNameList as listfname
 
@@ -43,6 +44,7 @@ def saveImage(data, filename):
     for f2 in range(0, len(data)):
         if os.path.exists('{}'.format(filename + '_' + format(f2 + 1) + '.jpg', data[f2])) == 0:
             cv2.imwrite(filename + '_' + format(f2 + 1) + '.jpg', data[f2])
+            saveCSVFile(filename, data[f2])
 
 
 def hiraganaPreprocess(main_directory, directory_name):
@@ -61,3 +63,10 @@ def katakanaPreprocess(main_directory, directory_name):
         data_path = os.path.join(img_dir, '*g')
         files = glob.glob(data_path)
         bigPreprocess(main_directory, img_dir, files)
+
+
+def saveCSVFile(file_name, data_array):
+    save_data = data_array.tolist()
+    with open(file_name + '.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        writer.writerows(save_data)
