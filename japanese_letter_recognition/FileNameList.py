@@ -43,7 +43,7 @@ hiragana_label = [
     "Jo", "Ju", "Ka", "Ke", "Ki", "Ko", "Ku", "Kya", "Kyo", "Kyu", "Ma", "Me", "Mi", "Mo", "Mu", "Mya", "Myo", "Myu",
     "N", "Na", "Ne", "Ni", "No", "Nu", "Nya", "Nyo", "Nyu", "O", "Pa", "Pe", "Pi", "Po", "Pu", "Pya", "Pyo", "Pyu",
     "Ra", "Re", "Ri", "Ro", "Ru", "Rya", "Ryo", "Ryu", "Sa", "Se", "Sha", "Shi", "Sho", "Shu", "So", "Su", "Ta", "Te",
-    "To", "Tsu", "U", "Wa", "Wo", "Ya", "Yu", "Za", "Ze", "Zo", "Zu", "Zu"
+    "To", "Tsu", "U", "Wa", "Wo", "Ya", "Yo", "Yu", "Za", "Ze", "Zo", "Zu", "Zu"
 ]
 
 katakana_label = [
