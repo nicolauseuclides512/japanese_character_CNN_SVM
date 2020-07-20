@@ -12,8 +12,8 @@ hiragana_name = [
     "Hiragana_Pyo", "Hiragana_Pyu", "Hiragana_Ra", "Hiragana_Re", "Hiragana_Ri", "Hiragana_Ro", "Hiragana_Ru",
     "Hiragana_Rya", "Hiragana_Ryo", "Hiragana_Ryu", "Hiragana_Sa", "Hiragana_Se", "Hiragana_Sha", "Hiragana_Shi",
     "Hiragana_Sho", "Hiragana_Shu", "Hiragana_So", "Hiragana_Su", "Hiragana_Ta", "Hiragana_Te", "Hiragana_To",
-    "Hiragana_Tsu", "Hiragana_U", "Hiragana_Wa", "Hiragana_Wo", "Hiragana_Ya", "Hiragana_Yu", "Hiragana_Za",
-    "Hiragana_Ze", "Hiragana_Zo", "Hiragana_Zu", "Hiragana_Zu_2"
+    "Hiragana_Tsu", "Hiragana_U", "Hiragana_Wa", "Hiragana_Wo", "Hiragana_Ya", "Hiragana_Yo", "Hiragana_Yu",
+    "Hiragana_Za", "Hiragana_Ze", "Hiragana_Zo", "Hiragana_Zu", "Hiragana_Zu_2"
 ]
 
 katakana_name = [
