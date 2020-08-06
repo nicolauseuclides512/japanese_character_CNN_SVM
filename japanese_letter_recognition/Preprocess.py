@@ -4,12 +4,24 @@ import glob
 import numpy as np
 import csv
 import japanese_letter_recognition.FileNameList as listfname
+import japanese_letter_recognition.NeuralNetwork as nn
+from sklearn.model_selection import train_test_split
 
 
-def bigPreprocess(main_directory, directoryname, files):
+def bigPreprocess(main_directory, directoryname, img_dir, files, data_with_name):
     data = []
+    label = []
+    datas = []
+    labels = []
     kernel = np.ones((3, 3), np.uint8)
     kernel_morph = np.ones((2, 2), np.uint8)
+    if "Hiragana" in img_dir:
+        os.chdir(main_directory + 'blackwhite_image/Hiragana')
+        label = listfname.hiragana_label
+    elif "Katakana" in img_dir:
+        os.chdir(main_directory + 'blackwhite_image/Katakana')
+        label = listfname.katakana_label
+    os.chdir(directoryname)
     for f1 in files:
         img = cv2.imread(f1)
         img_resize = cv2.resize(img, (168, 168))
@@ -19,70 +31,67 @@ def bigPreprocess(main_directory, directoryname, files):
         img_morph_open = cv2.morphologyEx(img_erotion, cv2.MORPH_OPEN, kernel_morph, iterations=3)
         img_morph_close = cv2.morphologyEx(img_morph_open, cv2.MORPH_CLOSE, kernel_morph, iterations=3)
         img_dilation = cv2.dilate(img_morph_close, kernel, iterations=1)
-        data.append(img_dilation)
-    if "Hiragana" in directoryname:
-        os.chdir(main_directory + 'blackwhite_image/Hiragana')
-        label = listfname.hiragana_label
-        checkDirectoryForSave(directoryname, data)
-        saveCSVFile(data, directoryname, label, "Hiragana")
-    elif "Katakana" in directoryname:
-        os.chdir(main_directory + 'blackwhite_image/Katakana')
-        label = listfname.katakana_label
-        checkDirectoryForSave(directoryname, data)
-        saveCSVFile(data, directoryname, label, "Katakana")
-    print(directoryname + ' done')
-
-
-def checkDirectoryForSave(directoryname, data):
-    if os.path.exists(directoryname):
-        os.chdir(directoryname)
-        saveImage(data, directoryname)
-    else:
-        os.mkdir(directoryname)
-        os.chdir(directoryname)
-        saveImage(data, directoryname)
-
-
-def saveImage(data, filename):
+        (x, y) = img_dilation.shape
+        for lname in label:
+            if lname[1] == img_dir.partition("_")[2]:
+                data.append([img_dilation, lname[0]])
+                # nn.convnetModel(img_dilation, lname[0], x, y)
     for f2 in range(0, len(data)):
-        if os.path.exists('{}'.format(filename + '_' + format(f2 + 1) + '.jpg', data[f2])) == 0:
-            cv2.imwrite(filename + '_' + format(f2 + 1) + '.jpg', data[f2])
+        datas.append(data[f2][0])
+        labels.append(data[f2][1])
+    data_train, data_test, label_train, label_test = train_test_split(datas, labels, test_size=0.33)
+    data_with_name.append(data)
+    print(img_dir + ' done')
 
 
-def hiraganaPreprocess(main_directory, directory_name):
+# def checkDirectoryForSave(directoryname, data):
+#     if os.path.exists(directoryname):
+#         os.chdir(directoryname)
+#         saveImage(data, directoryname)
+#     else:
+#         os.mkdir(directoryname)
+#         os.chdir(directoryname)
+#         saveImage(data, directoryname)
+
+
+# def saveImage(data, filename):
+#     for f2 in range(0, len(data)):
+#         if os.path.exists('{}'.format(filename + '_' + format(f2 + 1) + '.jpg', data[f2])) == 0:
+#             cv2.imwrite(filename + '_' + format(f2 + 1) + '.jpg', data[f2])
+
+
+def hiraganaPreprocess(main_directory, directory_name, data_label):
     for fname in listfname.hiragana_name:
         os.chdir(directory_name)
         img_dir = format(fname)
         data_path = os.path.join(img_dir, '*g')
         files = glob.glob(data_path)
-        bigPreprocess(main_directory, img_dir, files)
+        bigPreprocess(main_directory, directory_name, img_dir, files, data_label)
 
 
-def katakanaPreprocess(main_directory, directory_name):
+def katakanaPreprocess(main_directory, directory_name, data_label):
     for fname in listfname.katakana_name:
         os.chdir(directory_name)
         img_dir = format(fname)
         data_path = os.path.join(img_dir, '*g')
         files = glob.glob(data_path)
-        bigPreprocess(main_directory, img_dir, files)
+        bigPreprocess(main_directory, directory_name, img_dir, files, data_label)
 
 
-def saveCSVFile(data, filename, label, fname):
-    os.chdir('/home/nicolaus/PycharmProjects/thesis_program/japanese_letter_recognition')
-    data_array = []
-    for lname in label:
-        for f2 in range(0, len(data)):
-            if lname[1] == filename.partition("_")[2]:
-                data_array.append([
-                    '/home/nicolaus/PycharmProjects/thesis_program/blackwhite_image/' + fname + '/' + filename + '_' + format(
-                        f2 + 1) + '.jpg', lname[0]])
-    save_data = data_array
-    if os.path.exists('Kana_Letter.csv') == 0:
-        with open('Kana_Letter.csv', 'w', newline='') as csvfile:
-            writer = csv.writer(csvfile, delimiter=',')
-            writer.writerow(['data', 'label'])
-            writer.writerows(save_data)
-    else:
-        with open('Kana_Letter.csv', 'a+', newline='') as csvfile:
-            writer = csv.writer(csvfile, delimiter=',')
-            writer.writerows(save_data)
+def saveFile(data, filename, main_directory):
+    os.chdir(main_directory + 'japanese_letter_recognition')
+    if "Hiragana" in filename:
+        os.chdir(main_directory + 'blackwhite_image/Hiragana')
+        # checkDirectoryForSave(filename, data)
+    elif "Katakana" in filename:
+        os.chdir(main_directory + 'blackwhite_image/Katakana')
+        # checkDirectoryForSave(filename, data)
+    # if os.path.exists('Kana_Letter.csv') == 0:
+    #     with open('Kana_Letter.csv', 'w', newline='') as csvfile:
+    #         writer = csv.writer(csvfile, delimiter=',')
+    #         writer.writerow(['data', 'label'])
+    #         writer.writerows(save_data)
+    # else:
+    #     with open('Kana_Letter.csv', 'a+', newline='') as csvfile:
+    #         writer = csv.writer(csvfile, delimiter=',')
+    #         writer.writerows(save_data)
