@@ -4,11 +4,15 @@ import glob
 import numpy as np
 import csv
 import japanese_letter_recognition.FileNameList as listfname
-import japanese_letter_recognition.NeuralNetwork as nn
 from sklearn.model_selection import train_test_split
+from japanese_letter_recognition import NeuralNetwork as convn
+from keras.models import Sequential
+from keras.layers import Conv2D
+from keras.layers import AveragePooling2D
 
 
-def bigPreprocess(main_directory, directoryname, img_dir, files, data_with_name):
+def bigPreprocess(main_directory, directoryname, img_dir, files, data_trains, data_tests, data_vals, label_trains,
+                  label_tests, label_vals):
     data = []
     label = []
     datas = []
@@ -26,21 +30,38 @@ def bigPreprocess(main_directory, directoryname, img_dir, files, data_with_name)
         img = cv2.imread(f1)
         img_resize = cv2.resize(img, (168, 168))
         grayImage = cv2.cvtColor(img_resize, cv2.COLOR_BGR2GRAY)
-        (thresh, blackAndWhiteImage) = cv2.threshold(grayImage, 127, 255, cv2.THRESH_BINARY)
+        (thresh, blackAndWhiteImage) = cv2.threshold(grayImage, 127, 1, cv2.THRESH_BINARY)
         img_erotion = cv2.erode(blackAndWhiteImage, kernel, iterations=2)
         img_morph_open = cv2.morphologyEx(img_erotion, cv2.MORPH_OPEN, kernel_morph, iterations=3)
         img_morph_close = cv2.morphologyEx(img_morph_open, cv2.MORPH_CLOSE, kernel_morph, iterations=3)
         img_dilation = cv2.dilate(img_morph_close, kernel, iterations=1)
         (x, y) = img_dilation.shape
-        for lname in label:
-            if lname[1] == img_dir.partition("_")[2]:
-                data.append([img_dilation, lname[0]])
-                # nn.convnetModel(img_dilation, lname[0], x, y)
-    for f2 in range(0, len(data)):
-        datas.append(data[f2][0])
-        labels.append(data[f2][1])
-    data_train, data_test, label_train, label_test = train_test_split(datas, labels, test_size=0.33)
-    data_with_name.append(data)
+        # img_dilation = list(np.asarray(img_dilation))
+        model = Sequential()
+        model.add(Conv2D(1, (3, 3), activation='relu', input_shape=(x, y, 1)))
+        model.add(AveragePooling2D())
+        model.summary()
+        yhat = model.predict(img_dilation)
+        print(model.output)
+        for r in range(yhat.shape[1]):
+            # print each column in the row
+            print([yhat[0, r, c, 0] for c in range(yhat.shape[2])])
+
+    # for lname in label:
+    #     if lname[1] == img_dir.partition("_")[2]:
+    #         data.append([img_dilation, lname[0]])
+    # for f2 in range(0, len(data)):
+    #     datas.append(data[f2][0])
+    #     labels.append(data[f2][1])
+    # data_train, data_test, label_train, label_test = train_test_split(datas, labels, test_size=0.33)
+    # data_train, data_val, label_train, label_val = train_test_split(data_train, label_train, test_size=0.25,
+    #                                                                 random_state=1)  # 0.25 x 0.8 = 0.2
+    # data_trains.append(data_train)
+    # data_tests.append(data_test)
+    # data_vals.append(data_val)
+    # label_trains.append(label_train)
+    # label_tests.append(label_test)
+    # label_vals.append(label_val)
     print(img_dir + ' done')
 
 
@@ -60,22 +81,26 @@ def bigPreprocess(main_directory, directoryname, img_dir, files, data_with_name)
 #             cv2.imwrite(filename + '_' + format(f2 + 1) + '.jpg', data[f2])
 
 
-def hiraganaPreprocess(main_directory, directory_name, data_label):
+def hiraganaPreprocess(main_directory, directory_name, data_trains, data_tests, data_vals, label_trains, label_tests,
+                       label_vals):
     for fname in listfname.hiragana_name:
         os.chdir(directory_name)
         img_dir = format(fname)
         data_path = os.path.join(img_dir, '*g')
         files = glob.glob(data_path)
-        bigPreprocess(main_directory, directory_name, img_dir, files, data_label)
+        bigPreprocess(main_directory, directory_name, img_dir, files, data_trains, data_tests, data_vals, label_trains,
+                      label_tests, label_vals)
 
 
-def katakanaPreprocess(main_directory, directory_name, data_label):
+def katakanaPreprocess(main_directory, directory_name, data_trains, data_tests, data_vals, label_trains, label_tests,
+                       label_vals):
     for fname in listfname.katakana_name:
         os.chdir(directory_name)
         img_dir = format(fname)
         data_path = os.path.join(img_dir, '*g')
         files = glob.glob(data_path)
-        bigPreprocess(main_directory, directory_name, img_dir, files, data_label)
+        bigPreprocess(main_directory, directory_name, img_dir, files, data_trains, data_tests, data_vals, label_trains,
+                      label_tests, label_vals)
 
 
 def saveFile(data, filename, main_directory):
