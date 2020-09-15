@@ -31,10 +31,9 @@ def predSVM(clf, data_test):
     return
 
 
-def splitData(data_with_label):
-    data_train, data_test, label_train, labe_test = train_test_split(data_with_label[0], data_with_label[1],
-                                                                     test_size=0.33)
-    print(data_train)
+def splitData(data, label):
+    data_train, data_test, label_train, label_test = train_test_split(data, label, test_size=0.33)
+    return data_train, data_test, label_train, label_train
 
 
 def svmClassifier(data_vector):
