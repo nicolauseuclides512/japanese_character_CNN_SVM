@@ -15,7 +15,8 @@ def main():
     Process.katakanaPreprocess(main_directory, main_directory + 'data_image/train/Katakana', data_tests, label_tests)
     print("done")
     data_trains, data_vals, label_trains, label_vals = NNet.splitData(data_trains, label_trains)
-    NNet.convnetModel(data_trains, label_trains, 168, 168)
+    features_train = NNet.convnetModel(data_trains, label_trains, 168, 168).predict
+    print("Fitur = "+features_train)
 
 
 if __name__ == "__main__":
